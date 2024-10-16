@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра с инвентарем</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            background-color: #f0f0f0;
+        }
+
+        .center-square {
+            width: 100px;
+            height: 100px;
+            background-color: #4CAF50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        #timer {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .inventory {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(9, 50px);
+            grid-gap: 10px;
+            justify-content: center;
+        }
+
+        .inventory-cell {
+            width: 50px;
+            height: 50px;
+            background-color: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #000;
+        }
+
+        .item {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="center-square" id="square"></div>
+    <div id="timer">0</div>
+    <div class="inventory" id="inventory"></div>
+
+    <script>
+        const inventory = new Array(36).fill(null).map(() => ({ item: null, quantity: 0 }));
+        const items = ["Камень", "Дерево", "Золото", "Алмаз"];
+        let timerElement = document.getElementById("timer");
+        let square = document.getElementById("square");
+        let inventoryElement = document.getElementById("inventory");
+
+        // Инициализация инвентаря
+        function renderInventory() {
+            inventoryElement.innerHTML = "";
+            inventory.forEach((cell, index) => {
+                const cellElement = document.createElement("div");
+                cellElement.classList.add("inventory-cell");
+                if (cell.item) {
+                    cellElement.innerHTML = `<span class="item">${cell.item} (${cell.quantity})</span>`;
+                }
+                inventoryElement.appendChild(cellElement);
+            });
+        }
+
+        // Добавление предмета в инвентарь
+        function addItemToInventory(item) {
+            // Попытка добавить в существующую ячейку с тем же предметом
+            for (let i = 0; i < inventory.length; i++) {
+                if (inventory[i].item === item && inventory[i].quantity < 64) {
+                    inventory[i].quantity++;
+                    renderInventory();
+                    return;
+                }
+            }
+            // Если есть свободная ячейка, то добавляем туда
+            for (let i = 0; i < inventory.length; i++) {
+                if (inventory[i].item === null) {
+                    inventory[i].item = item;
+                    inventory[i].quantity = 1;
+                    renderInventory();
+                    return;
+                }
+            }
+            // Если все ячейки заполнены
+            alert("Инвентарь полон!");
+        }
+
+        // Обработчик клика на квадрат
+        square.addEventListener("click", () => {
+            let countdown = 3;
+            timerElement.textContent = countdown;
+
+            const interval = setInterval(() => {
+                countdown--;
+                timerElement.textContent = countdown;
+                if (countdown === 0) {
+                    clearInterval(interval);
+                    const randomItem = items[Math.floor(Math.random() * items.length)];
+                    addItemToInventory(randomItem);
+                }
+            }, 1000);
+        });
+
+        // Рендер начального состояния инвентаря
+        renderInventory();
+    </script>
+</body>
+</html>
